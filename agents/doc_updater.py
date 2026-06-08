@@ -31,7 +31,7 @@ class DocState(TypedDict):
     iteration: int
     logs: list[dict]
 
-
+# The modifier agent updates the documentation based on the current docs, code, diff, and any reviewer feedback. The reviewer agent checks the updated docs against the actual code and provides feedback. The graph orchestrates these agents until the docs are approved or max iterations are reached.
 def modifier_agent(state: DocState) -> DocState:
     iteration = state["iteration"] + 1
     log_msg = f"Iteration {iteration}: {'Addressing reviewer feedback and rewriting docs.' if state['review_feedback'] else 'Reading code diff and writing updated documentation.'}"
