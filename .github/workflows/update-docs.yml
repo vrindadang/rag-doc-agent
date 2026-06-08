@@ -1,0 +1,40 @@
+name: Auto-Update Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+
+permissions:
+  contents: write
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create runtime config
+        run: |
+          printf '%s' "${{ secrets.RAG_DOC_AGENT_ENV }}" > .env
+
+      - name: Get diff
+        run: |
+          DIFF=$(git diff HEAD~1 HEAD -- app/ || echo "Initial commit.")
+          echo "DIFF<<EOF" >> $GITHUB_ENV
+          echo "$DIFF" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Run doc agents
+        run: |
+          python -m agents.doc_updater "$DIFF" "${{ github.sha }}" "github_push"
