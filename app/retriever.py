@@ -22,7 +22,7 @@ def embed_question(question: str) -> list[float]:
     )
     return response.data[0].embedding
 
-
+# this function is used to retrieve similar chunks from Supabase based on the question embedding.
 def retrieve_similar_chunks(question: str, top_k: int = 3) -> list[dict]:
     """
     Find the top_k most similar chunks to the question.

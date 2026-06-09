@@ -6,7 +6,7 @@ from langgraph.graph import END, StateGraph
 from agents.supabase_store import fetch_latest_doc, upload_doc, save_version, save_agent_log
 from app.config import Config
 
-MAX_ITERATIONS = 3
+MAX_ITERATIONS = 5
 
 
 # AzureChatOpenAI reads Azure-specific params
@@ -71,8 +71,8 @@ ACTUAL CODE:
 {state['file_contents']}
 
 Check: endpoint accuracy, module descriptions, missing/stale content, env vars, setup instructions, clarity.
-If correct: respond APPROVED
-If issues: respond REVISION NEEDED followed by numbered list."""
+If documentation is substantially correct and only minor wording improvements remain: respond APPROVED.
+If issues: respond REVISION NEEDED followed by numbered list. Request revisions only for factual inaccuracies, missing functionality, incorrect APIs, or misleading information."""
 
     feedback = llm.invoke(prompt).content.strip()
     approved = feedback.upper().startswith("APPROVED")
