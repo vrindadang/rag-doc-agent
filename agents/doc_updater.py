@@ -67,7 +67,8 @@ def modifier_agent(state: DocState) -> DocState:
     Generate comprehensive markdown documentation covering:
     - Project overview
     - Architecture
-    - All modules and responsibilities
+    - app modules and responsibilities
+    - agent modules and responsibilities
     - API endpoints (method, path, params, responses)
     - Setup instructions
     - Environment variables
@@ -84,7 +85,7 @@ def modifier_agent(state: DocState) -> DocState:
 
 def reviewer_agent(state: DocState) -> DocState:
     log_msg = f"Iteration {state['iteration']}: Reviewing documentation against source code..."
-    
+
     print(f"[Reviewer] {log_msg}")
 
     prompt = f"""You are a senior engineer reviewing documentation accuracy.
