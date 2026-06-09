@@ -81,7 +81,7 @@ Initializes the application package.
 Contains configuration settings and environment variable loading for Azure OpenAI and Supabase.
 
 ### app/generator.py
-Handles interactions with Azure OpenAI to generate answers to questions and stream responses. It includes the `stream_answer` function, which streams the LLM answer token by token, allowing for real-time updates in the user interface.
+Handles interactions with Azure OpenAI to generate answers to questions and stream responses. It includes the `stream_answer` function, which streams the LLM answer token by token, allowing for real-time updates in the user interface, specifically designed for use with a responsive UI in Streamlit.
 
 ### app/ingestor.py
 Responsible for ingesting PDF files, extracting text, tables, and visual summaries, and storing the content in Supabase. It includes functions for extracting text, tables, and visual summaries from PDF pages.
@@ -101,7 +101,7 @@ Retrieves similar chunks from Supabase based on the user's question by embedding
    ```bash
    pip install -r requirements.txt
    ```
-   Note: If you are using a `.env` file, ensure you have `python-dotenv` installed.
+   Note: If you are using a `.env` file, ensure you have `python-dotenv` installed, as it is required for loading environment variables.
 3. Set up a Supabase instance and create the necessary tables:
    - `document_chunks`: To store the indexed content.
    - `ingested_files`: To track the files that have been processed.
@@ -113,6 +113,7 @@ Retrieves similar chunks from Supabase based on the user's question by embedding
    AZURE_OPENAI_API_VERSION=your_api_version
    EMBEDDING_DEPLOYMENT=your_embedding_deployment
    CHAT_DEPLOYMENT=your_chat_deployment
+   AZURE_CHAT_DEPLOYMENT=your_chat_deployment  # Optional
    SUPABASE_URL=https://<your_supabase_url>
    SUPABASE_ANON_KEY=your_anon_key
    SUPABASE_SERVICE_KEY=your_service_key
