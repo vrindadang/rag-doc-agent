@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "app/**"
+      - "agents/**"
 
 permissions:
   contents: write

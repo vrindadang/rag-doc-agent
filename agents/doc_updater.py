@@ -39,19 +39,43 @@ def modifier_agent(state: DocState) -> DocState:
 
     feedback_section = f"\n\nREVIEWER FEEDBACK TO ADDRESS:\n{state['review_feedback']}" if state["review_feedback"] else ""
 
-    prompt = f"""You are a technical documentation writer. Update the documentation to match the codebase.
+    prompt = f"""You are a technical documentation writer.
 
-CURRENT DOCUMENTATION:
-{state['current_docs']}
+    Your goal is to produce documentation that accurately reflects the codebase and satisfies the review criteria.
 
-CURRENT CODE:
-{state['file_contents']}
+    CURRENT DOCUMENTATION:
+    {state['current_docs']}
 
-GIT DIFF:
-{state['code_diff']}
-{feedback_section}
+    CURRENT CODE:
+    {state['file_contents']}
 
-Output ONLY the full updated documentation markdown. Cover: overview, API endpoints (method/path/params/response), modules, setup, env vars, architecture."""
+    GIT DIFF:
+    {state['code_diff']}
+
+    {feedback_section}
+
+    IMPORTANT REVIEW CRITERIA:
+    - Documentation must match the actual code.
+    - API endpoints, modules, setup instructions, architecture, and environment variables must be accurate.
+    - Do not invent functionality that is not present in the code.
+    - Preserve sections that are already correct.
+    - If reviewer feedback is provided, address every issue raised.
+    - Do not rewrite the entire document unnecessarily.
+    - Minimize changes outside the requested revisions.
+    - The objective is to produce documentation that would be approved by the reviewer.
+
+    Generate comprehensive markdown documentation covering:
+    - Project overview
+    - Architecture
+    - Modules and responsibilities
+    - API endpoints (method, path, params, responses)
+    - Setup instructions
+    - Environment variables
+    - Data flow
+    - Key workflows
+
+    Output ONLY the complete updated markdown documentation.
+    """
     
     updated = llm.invoke(prompt).content.strip()
     logs = state["logs"] + [{"agent": "modifier", "iteration": iteration, "message": log_msg}]
@@ -64,15 +88,41 @@ def reviewer_agent(state: DocState) -> DocState:
 
     prompt = f"""You are a senior engineer reviewing documentation accuracy.
 
-UPDATED DOCS:
-{state['updated_docs']}
+    UPDATED DOCS:
+    {state['updated_docs']}
 
-ACTUAL CODE:
-{state['file_contents']}
+    ACTUAL CODE:
+    {state['file_contents']}
 
-Check: endpoint accuracy, module descriptions, missing/stale content, env vars, setup instructions, clarity.
-If documentation is substantially correct and only minor wording improvements remain: respond APPROVED.
-If issues: respond REVISION NEEDED followed by numbered list. Request revisions only for factual inaccuracies, missing functionality, incorrect APIs, or misleading information."""
+    GIT DIFF:
+    {state['code_diff']}
+
+    Review for factual accuracy only.
+
+    Validate:
+    1. API endpoints
+    2. Module descriptions
+    3. Setup instructions
+    4. Environment variables
+    5. Architecture descriptions
+    6. Data flow descriptions
+    7. Features introduced by the git diff
+
+    IMPORTANT:
+    - Focus primarily on correctness.
+    - Do NOT request stylistic changes.
+    - Do NOT request wording improvements.
+    - Do NOT request formatting changes.
+    - Do NOT request additional examples.
+    - Do NOT request improvements that are merely "nice to have".
+    - Approve documentation if it is substantially accurate and complete.
+
+    If documentation is factually accurate and complete, respond with exactly: APPROVED
+
+    Otherwise respond with exactly: REVISION NEEDED
+
+    followed by a numbered list of factual issues that must be corrected.
+    """
 
     feedback = llm.invoke(prompt).content.strip()
     approved = feedback.upper().startswith("APPROVED")
