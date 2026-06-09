@@ -151,7 +151,9 @@ This architecture allows for efficient document ingestion, querying, and respons
 - **Querying Documents**: The user submits a question, which is embedded and matched against stored document chunks. The application streams the response back to the user, providing citations for the information used in the answer.
 
 ## Notes
-- A minor code change was made in the `modifier_agent` function where the documentation now distinguishes between "app modules and responsibilities" and "agent modules and responsibilities." This change does not affect functionality but is noted for completeness.
-- The documentation clarifies the optional nature of the `SUPABASE_BUCKET` variable, which is currently not used in the codebase, and suggests providing more detail on its intended purpose in the future.
-- Error handling details regarding Supabase interactions could be expanded to include the types of exceptions caught and their management.
+- A minor code change was made in the `doc_updater.py` file where the temperature for the `AzureChatOpenAI` instance was changed from `0.2` to `0.0`. This change is accurately reflected in the documentation.
+- The documentation now emphasizes the expertise requirement for the documentation writer, which aligns with the changes made in the `modifier_agent` function.
+- Error handling details regarding Supabase interactions could be expanded to include specific examples of the types of exceptions caught and their management, particularly in the `store_chunks_in_supabase` and `list_ingested_files` functions.
+- The modules section provides a clear overview of the purpose and responsibilities of each module. It could benefit from a brief mention of the key functions/classes within each module for enhanced clarity.
+- The documentation could briefly mention how reviewer feedback is handled in the documentation update process, as this is a critical part of the workflow.
 ```
