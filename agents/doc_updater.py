@@ -67,7 +67,7 @@ def modifier_agent(state: DocState) -> DocState:
     Generate comprehensive markdown documentation covering:
     - Project overview
     - Architecture
-    - Modules and responsibilities
+    - All modules and responsibilities
     - API endpoints (method, path, params, responses)
     - Setup instructions
     - Environment variables
@@ -156,8 +156,11 @@ def run(code_diff: str, commit_sha: str = "manual", trigger_source: str = "manua
     print(f"[Store] Current v{current_version} -> creating v{new_version}")
 
     parts = []
-    for f in sorted(Path("app").glob("**/*.py")):
-        parts.append(f"=== {f} ===\n{f.read_text()}")
+    for folder in ["app", "agents"]:
+        for f in sorted(Path(folder).glob("**/*.py")):
+            parts.append(
+                f"=== {f} ===\n{f.read_text(encoding='utf-8')}"
+            )
     file_contents = "\n\n".join(parts)
 
     initial: DocState = {
