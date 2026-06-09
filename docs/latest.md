@@ -151,7 +151,7 @@ This architecture allows for efficient document ingestion, querying, and respons
 - **Querying Documents**: The user submits a question, which is embedded and matched against stored document chunks. The application streams the response back to the user, providing citations for the information used in the answer.
 
 ## Notes
-- A minor code change was made in the `reviewer_agent` function where an extra blank line was added. This stylistic change does not affect functionality but is noted for completeness.
+- A minor code change was made in the `modifier_agent` function where the documentation now distinguishes between "app modules and responsibilities" and "agent modules and responsibilities." This change does not affect functionality but is noted for completeness.
 - The documentation clarifies the optional nature of the `SUPABASE_BUCKET` variable, which is currently not used in the codebase, and suggests providing more detail on its intended purpose in the future.
 - Error handling details regarding Supabase interactions could be expanded to include the types of exceptions caught and their management.
 ```
