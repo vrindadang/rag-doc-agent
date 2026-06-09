@@ -8,7 +8,7 @@ azure_client = AzureOpenAI(
     api_version=Config.AZURE_OPENAI_API_VERSION,
 )
 
-
+# this function is used to stream the answer from Azure OpenAI token by token, which allows for a more responsive UI in Streamlit. It builds the messages with context and then yields each token as it arrives from the stream.
 def stream_answer(question: str, chunks: list[dict]):
     """
     Generator that streams the LLM answer token by token.
