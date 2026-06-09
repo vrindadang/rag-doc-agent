@@ -81,7 +81,7 @@ Initializes the application package.
 Contains configuration settings and environment variable loading for Azure OpenAI and Supabase.
 
 ### app/generator.py
-Handles interactions with Azure OpenAI to generate answers to questions and stream responses. It includes the `stream_answer` function, which streams the LLM answer token by token, allowing for real-time updates in the user interface, specifically designed for use with a responsive UI in Streamlit.
+Handles interactions with Azure OpenAI to generate answers to questions and stream responses. It includes the `stream_answer` function, which streams the LLM answer token by token, allowing for real-time updates in the user interface.
 
 ### app/ingestor.py
 Responsible for ingesting PDF files, extracting text, tables, and visual summaries, and storing the content in Supabase. It includes functions for extracting text, tables, and visual summaries from PDF pages.
@@ -117,6 +117,7 @@ Retrieves similar chunks from Supabase based on the user's question by embedding
    SUPABASE_URL=https://<your_supabase_url>
    SUPABASE_ANON_KEY=your_anon_key
    SUPABASE_SERVICE_KEY=your_service_key
+   SUPABASE_BUCKET=your_bucket_name  # Optional, not currently used in the codebase.
    ```
 
 ## Environment Variables
@@ -129,7 +130,7 @@ Retrieves similar chunks from Supabase based on the user's question by embedding
 - `SUPABASE_URL`: The URL for your Supabase instance.
 - `SUPABASE_ANON_KEY`: The anonymous key for accessing Supabase.
 - `SUPABASE_SERVICE_KEY`: The service key for writing to Supabase.
-- `SUPABASE_BUCKET`: (Not currently used in the codebase, may be removed to avoid confusion).
+- `SUPABASE_BUCKET`: (Optional) The name of the Supabase bucket, currently not used in the codebase.
 
 ## Architecture
 The application follows a modular architecture with distinct responsibilities for each module. The main components include:
@@ -139,4 +140,13 @@ The application follows a modular architecture with distinct responsibilities fo
 - **PDF Processing**: Utilizing PyMuPDF for extracting text and visual content from PDF files.
 
 This architecture allows for efficient document ingestion, querying, and response generation by leveraging cloud services for scalability and performance, with each component contributing to a seamless user experience.
+
+## Data Flow
+1. **Document Ingestion**: Users upload PDF files via the `/ingest` endpoint. The application extracts content (text, tables, visuals) from the PDF and stores it in Supabase.
+2. **Querying**: Users can ask questions via the `/query` endpoint. The application retrieves relevant chunks from Supabase based on the question and streams the answer using Azure OpenAI.
+3. **Response Generation**: The application constructs prompts for Azure OpenAI based on the retrieved chunks and the user's question, generating a response that is streamed back to the user.
+
+## Key Workflows
+- **Ingesting a PDF**: The user uploads a PDF, which is processed to extract text, tables, and visuals. The extracted content is split into chunks and embedded for efficient retrieval.
+- **Querying Documents**: The user submits a question, which is embedded and matched against stored document chunks. The application streams the response back to the user, providing citations for the information used in the answer.
 ```
