@@ -58,10 +58,10 @@ def modifier_agent(state: DocState) -> DocState:
     - Documentation must match the actual code.
     - API endpoints, modules, setup instructions, architecture, and environment variables must be accurate.
     - Do not invent functionality that is not present in the code.
-    - Preserve sections that are already correct.
     - If reviewer feedback is provided, address every issue raised.
-    - Do not rewrite the entire document unnecessarily.
-    - Minimize changes outside the requested revisions.
+    - Ensure all modules present in the provided source code are documented.
+    - If modules exist that are not currently documented, create new sections for them.
+    - The generated documentation must fully reflect the current codebase, even if restructuring existing documentation is required.
     - The objective is to produce documentation that would be approved by the reviewer.
 
     Generate comprehensive markdown documentation covering:
@@ -139,6 +139,8 @@ def reviewer_agent(state: DocState) -> DocState:
     5. Architecture descriptions
     6. Data flow descriptions
     7. Features introduced by the git diff
+    8. Presence of documentation for all files under app/
+    9. Presence of documentation for all files under agents/
 
     IMPORTANT:
     - Focus primarily on correctness.
@@ -193,7 +195,9 @@ def build_graph():
 
 
 def run(code_diff: str, commit_sha: str = "manual", trigger_source: str = "manual"):
-    current_docs, current_version = fetch_latest_doc()
+    _, current_version = fetch_latest_doc()
+    current_docs = "# Generate documentation from scratch."
+    # current_docs, current_version = fetch_latest_doc()
     new_version = current_version + 1
     print(f"[Store] Current v{current_version} -> creating v{new_version}")
 
