@@ -84,6 +84,7 @@ def modifier_agent(state: DocState) -> DocState:
 
 def reviewer_agent(state: DocState) -> DocState:
     log_msg = f"Iteration {state['iteration']}: Reviewing documentation against source code..."
+    
     print(f"[Reviewer] {log_msg}")
 
     prompt = f"""You are a senior engineer reviewing documentation accuracy.

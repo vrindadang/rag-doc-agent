@@ -2,7 +2,8 @@ name: Auto-Update Documentation
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - "app/**"
       - "agents/**"
@@ -12,6 +13,8 @@ permissions:
 
 jobs:
   update-docs:
+    # Prevent infinite loops from documentation commits
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +34,7 @@ jobs:
 
       - name: Get diff
         run: |
-          DIFF=$(git diff HEAD~1 HEAD -- app/ || echo "Initial commit.")
+          DIFF=$(git diff HEAD~1 HEAD -- app/ agents/ || echo "Initial commit.")
           echo "DIFF<<EOF" >> $GITHUB_ENV
           echo "$DIFF" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -47,6 +50,17 @@ jobs:
 
           git add docs/latest.md
 
-          git diff --staged --quiet || git commit -m "Auto-update documentation"
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto-update documentation [skip ci]"
+            git push
+          else
+            echo "No documentation changes detected."
+          fi
 
-          git push
+      - name: Debug git state
+        run: |
+          echo "=== Git Status ==="
+          git status
+
+          echo "=== Latest Commits ==="
+          git log --oneline -n 5
