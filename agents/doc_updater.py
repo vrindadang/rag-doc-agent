@@ -120,6 +120,17 @@ def run(code_diff: str, commit_sha: str = "manual", trigger_source: str = "manua
     print("\n=== Starting agentic documentation update ===")
     final = build_graph().invoke(initial)
 
+    # Save latest documentation to repository
+    docs_dir = Path("docs")
+    docs_dir.mkdir(exist_ok=True)
+
+    (Path("docs/latest.md")).write_text(
+        final["updated_docs"],
+        encoding="utf-8"
+    )
+
+    print("[Store] Updated docs/latest.md")
+
     path = upload_doc(final["updated_docs"], new_version)
     version_id = save_version(new_version, path, commit_sha, trigger_source)
     for log in final["logs"]:
