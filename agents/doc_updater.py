@@ -15,7 +15,7 @@ llm = AzureChatOpenAI(
     azure_endpoint=Config.AZURE_OPENAI_ENDPOINT,
     api_key=Config.AZURE_OPENAI_API_KEY,
     api_version=Config.AZURE_OPENAI_API_VERSION,
-    temperature=0.2,
+    temperature=0.0,
 )
 
 
@@ -39,7 +39,7 @@ def modifier_agent(state: DocState) -> DocState:
 
     feedback_section = f"\n\nREVIEWER FEEDBACK TO ADDRESS:\n{state['review_feedback']}" if state["review_feedback"] else ""
 
-    prompt = f"""You are a technical documentation writer.
+    prompt = f"""You are a technical documentation writer with expertise in software engineering and technical writing.
 
     Your goal is to produce documentation that accurately reflects the codebase and satisfies the review criteria.
 
@@ -65,15 +65,45 @@ def modifier_agent(state: DocState) -> DocState:
     - The objective is to produce documentation that would be approved by the reviewer.
 
     Generate comprehensive markdown documentation covering:
-    - Project overview
-    - Architecture
-    - app modules and responsibilities
-    - agent modules and responsibilities
-    - API endpoints (method, path, params, responses)
-    - Setup instructions
-    - Environment variables
-    - Data flow
-    - Key workflows
+
+    ## Project Overview
+
+    ## Architecture
+
+    ## Application Modules
+    Document every Python file found under app/.
+
+    For each module include:
+    - Purpose
+    - Key functions/classes
+    - Responsibilities
+
+    ## Agent Modules
+    Document every Python file found under agents/.
+
+    For each module include:
+    - Purpose
+    - Key functions/classes
+    - Responsibilities
+    - Role in the documentation workflow
+
+    ## API Endpoints
+    Include method, path, request parameters, and responses.
+
+    ## Setup Instructions
+
+    ## Environment Variables
+
+    ## Data Flow
+
+    ## Key Workflows
+
+    IMPORTANT:
+    - Do not document functionality that is not explicitly present in the provided source code.
+    - Do not invent API endpoints.
+    - Do not invent environment variables.
+    - Do not invent modules.
+    - Do not invent setup steps.
 
     Output ONLY the complete updated markdown documentation.
     """
@@ -118,6 +148,9 @@ def reviewer_agent(state: DocState) -> DocState:
     - Do NOT request additional examples.
     - Do NOT request improvements that are merely "nice to have".
     - Approve documentation if it is substantially accurate and complete.
+    - Reject documentation only for factual inaccuracies.
+    - Reject documentation if it documents functionality not present in the code.
+    - Reject documentation if it omits major modules that are present in the code.
 
     If documentation is factually accurate and complete, respond with exactly: APPROVED
 
@@ -127,10 +160,17 @@ def reviewer_agent(state: DocState) -> DocState:
     """
 
     feedback = llm.invoke(prompt).content.strip()
+    print("\n=== Reviewer Feedback ===")
+    print(feedback)
+    print("========================\n")
     approved = feedback.upper().startswith("APPROVED")
     result_msg = f"Iteration {state['iteration']}: {'Approved.' if approved else 'Revision needed - ' + feedback[:150] + '...'}"
     logs = state["logs"] + [{"agent": "reviewer", "iteration": state["iteration"], "message": result_msg}]
-    print(f"[Reviewer] {'Approved.' if approved else 'Revision requested.'}")
+    print(
+    f"[Reviewer] "
+    f"{'Approved.' if approved else 'Revision requested.'}")
+    if approved:
+        print(f"[Graph] Approved after {state['iteration']} iterations.")
     return {**state, "review_feedback": "" if approved else feedback, "logs": logs}
 
 
