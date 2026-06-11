@@ -39,14 +39,14 @@ def modifier_agent(state: DocState) -> DocState:
 
     feedback_section = f"\n\nREVIEWER FEEDBACK TO ADDRESS:\n{state['review_feedback']}" if state["review_feedback"] else ""
 
-    prompt = f"""You are a technical documentation writer with expertise in software engineering and technical writing.
+    prompt = f"""You are a technical documentation writer.
 
-    Your goal is to produce documentation that accurately reflects the codebase and satisfies the review criteria.
+    Generate markdown documentation that accurately reflects the provided codebase.
 
     CURRENT DOCUMENTATION:
     {state['current_docs']}
 
-    CURRENT CODE:
+    SOURCE CODE:
     {state['file_contents']}
 
     GIT DIFF:
@@ -54,58 +54,33 @@ def modifier_agent(state: DocState) -> DocState:
 
     {feedback_section}
 
-    IMPORTANT REVIEW CRITERIA:
-    - Documentation must match the actual code.
-    - API endpoints, modules, setup instructions, architecture, and environment variables must be accurate.
-    - Do not invent functionality that is not present in the code.
-    - If reviewer feedback is provided, address every issue raised.
-    - Ensure all modules present in the provided source code are documented.
-    - If modules exist that are not currently documented, create new sections for them.
-    - The generated documentation must fully reflect the current codebase, even if restructuring existing documentation is required.
-    - The objective is to produce documentation that would be approved by the reviewer.
+    Requirements:
+    - Document only functionality present in the source code.
+    - Address all reviewer feedback.
+    - Include any undocumented modules found in the codebase.
+    - Do not invent APIs, environment variables, setup steps, or features.
 
-    Generate comprehensive markdown documentation covering:
+    Required sections:
 
-    ## Project Overview
+    # Project Overview
+    # Architecture
+    # Application Modules
+    # Agent Modules
+    # API Endpoints
+    # Setup Instructions
+    # Environment Variables
+    # Data Flow
+    # Key Workflows
 
-    ## Architecture
-
-    ## Application Modules
-    Document every Python file found under app/.
-
-    For each module include:
+    For every module include:
     - Purpose
     - Key functions/classes
     - Responsibilities
 
-    ## Agent Modules
-    Document every Python file found under agents/.
-
-    For each module include:
-    - Purpose
-    - Key functions/classes
-    - Responsibilities
+    For agent modules also include:
     - Role in the documentation workflow
 
-    ## API Endpoints
-    Include method, path, request parameters, and responses.
-
-    ## Setup Instructions
-
-    ## Environment Variables
-
-    ## Data Flow
-
-    ## Key Workflows
-
-    IMPORTANT:
-    - Do not document functionality that is not explicitly present in the provided source code.
-    - Do not invent API endpoints.
-    - Do not invent environment variables.
-    - Do not invent modules.
-    - Do not invent setup steps.
-
-    Output ONLY the complete updated markdown documentation.
+    Output only the complete markdown document.
     """
     
     updated = llm.invoke(prompt).content.strip()
@@ -120,45 +95,44 @@ def reviewer_agent(state: DocState) -> DocState:
 
     prompt = f"""You are a senior engineer reviewing documentation accuracy.
 
-    UPDATED DOCS:
+    DOCUMENTATION:
     {state['updated_docs']}
 
-    ACTUAL CODE:
+    SOURCE CODE:
     {state['file_contents']}
 
     GIT DIFF:
     {state['code_diff']}
 
-    Review for factual accuracy only.
+    Review only factual accuracy.
 
-    Validate:
+    Verify:
     1. API endpoints
     2. Module descriptions
     3. Setup instructions
     4. Environment variables
-    5. Architecture descriptions
-    6. Data flow descriptions
-    7. Features introduced by the git diff
-    8. Presence of documentation for all files under app/
-    9. Presence of documentation for all files under agents/
+    5. Architecture
+    6. Data flow
+    7. Changes introduced by the git diff
+    8. Documentation coverage for all app/ modules
+    9. Documentation coverage for all agents/ modules
 
-    IMPORTANT:
-    - Focus primarily on correctness.
-    - Do NOT request stylistic changes.
-    - Do NOT request wording improvements.
-    - Do NOT request formatting changes.
-    - Do NOT request additional examples.
-    - Do NOT request improvements that are merely "nice to have".
-    - Approve documentation if it is substantially accurate and complete.
-    - Reject documentation only for factual inaccuracies.
-    - Reject documentation if it documents functionality not present in the code.
-    - Reject documentation if it omits major modules that are present in the code.
+    Ignore:
+    - Style
+    - Wording
+    - Formatting
+    - Additional examples
+    - Nice-to-have improvements
 
-    If documentation is factually accurate and complete, respond with exactly: APPROVED
+    Respond exactly with:
 
-    Otherwise respond with exactly: REVISION NEEDED
+    APPROVED
 
-    followed by a numbered list of factual issues that must be corrected.
+    or
+
+    REVISION NEEDED
+
+    followed by a numbered list of factual issues.
     """
 
     feedback = llm.invoke(prompt).content.strip()
