@@ -169,9 +169,7 @@ def build_graph():
 
 
 def run(code_diff: str, commit_sha: str = "manual", trigger_source: str = "manual"):
-    _, current_version = fetch_latest_doc()
-    current_docs = "# Generate documentation from scratch."
-    # current_docs, current_version = fetch_latest_doc()
+    current_docs, current_version = fetch_latest_doc()
     new_version = current_version + 1
     print(f"[Store] Current v{current_version} -> creating v{new_version}")
 
